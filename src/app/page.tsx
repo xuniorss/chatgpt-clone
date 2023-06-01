@@ -1,10 +1,18 @@
 'use client'
 
+import { ChatArea } from '@/components/ChatArea'
+import { Header } from '@/components/Header'
 import { Sidebar } from '@/components/Sidebar'
+import { Chat } from '@/types/Chat'
 import { useCallback, useState } from 'react'
 
 export default function Home() {
    const [sidebarOpened, setSidebarOpened] = useState(false)
+   const [chatActive, setChatActive] = useState<Chat>()
+
+   const openSidebar = useCallback(() => {
+      setSidebarOpened(true)
+   }, [])
 
    const closeSidebar = useCallback(() => {
       setSidebarOpened(false)
@@ -21,17 +29,17 @@ export default function Home() {
             onClear={handleClearConversation}
             onNewChat={handleNewChat}
          >
-            {Array.from({ length: 50 }).map((_, i) => (
-               <div key={i} className="mb-2 h-96 w-16 bg-red-200">
-                  content
-               </div>
-            ))}
+            ...
          </Sidebar>
 
          <section className="flex w-full flex-col">
-            <button onClick={() => setSidebarOpened(true)}>
-               Abrir Sidebar
-            </button>
+            <Header
+               openSidebarClick={openSidebar}
+               title={`Any title`}
+               newChatClick={handleNewChat}
+            />
+
+            <ChatArea chat={chatActive} />
          </section>
       </main>
    )
