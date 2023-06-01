@@ -1,6 +1,7 @@
 'use client'
 
 import { ChatArea } from '@/components/ChatArea'
+import { Footer } from '@/components/Footer'
 import { Header } from '@/components/Header'
 import { Sidebar } from '@/components/Sidebar'
 import { Chat } from '@/types/Chat'
@@ -8,6 +9,7 @@ import { useCallback, useState } from 'react'
 
 export default function Home() {
    const [sidebarOpened, setSidebarOpened] = useState(false)
+   const [aiLoading, setAiLoading] = useState(false)
    const [chatActive, setChatActive] = useState<Chat>({
       id: '123',
       title: 'Bla blu',
@@ -31,6 +33,7 @@ export default function Home() {
 
    const handleClearConversation = useCallback(() => {}, [])
    const handleNewChat = useCallback(() => {}, [])
+   const handleSendMessage = useCallback(() => {}, [])
 
    return (
       <main className="flex min-h-screen bg-gpt-gray">
@@ -51,6 +54,8 @@ export default function Home() {
             />
 
             <ChatArea chat={chatActive} />
+
+            <Footer onSendMessage={handleSendMessage} disabled={aiLoading} />
          </section>
       </main>
    )
