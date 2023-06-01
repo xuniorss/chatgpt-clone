@@ -15,6 +15,7 @@ module.exports = {
          colors: {
             'gpt-gray': '#343541',
             'gpt-lightgray': '#40414F',
+            'gpt-sidebar': '#202123',
          },
       },
    },
