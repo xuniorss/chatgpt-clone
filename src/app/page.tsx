@@ -5,23 +5,43 @@ import { Footer } from '@/components/Footer'
 import { Header } from '@/components/Header'
 import { Sidebar } from '@/components/Sidebar'
 import { Chat } from '@/types/Chat'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 
 export default function Home() {
    const [sidebarOpened, setSidebarOpened] = useState(false)
    const [aiLoading, setAiLoading] = useState(false)
-   const [chatActive, setChatActive] = useState<Chat>({
-      id: '123',
-      title: 'Bla blu',
-      message: [
-         { id: '99', author: 'me', body: 'Opa, tudo bem?' },
-         {
-            id: '100',
-            author: 'ai',
-            body: 'Tudo otimo, em que posso te ajudar?',
-         },
-      ],
-   })
+   const [chatList, setChatList] = useState<Chat[]>([])
+   const [chatActiveId, setChatActiveId] = useState('')
+   const [chatActive, setChatActive] = useState<Chat>()
+
+   useEffect(() => {
+      setChatActive(chatList.find((item) => item.id === chatActiveId))
+   }, [chatActiveId, chatList])
+
+   const getAIResponse = useCallback(() => {
+      setTimeout(() => {
+         let chatListClone = [...chatList]
+         let chatIndex = chatListClone.findIndex(
+            (item) => item.id === chatActiveId
+         )
+
+         if (chatIndex > -1) {
+            chatListClone[chatIndex].messages.push({
+               id: uuidv4(),
+               author: 'ai',
+               body: 'Aqui vai a resposta da AI',
+            })
+         }
+
+         setChatList(chatListClone)
+         setAiLoading(false)
+      }, 2000)
+   }, [chatActiveId, chatList])
+
+   useEffect(() => {
+      if (aiLoading) getAIResponse()
+   }, [aiLoading, getAIResponse])
 
    const openSidebar = useCallback(() => {
       setSidebarOpened(true)
@@ -31,9 +51,55 @@ export default function Home() {
       setSidebarOpened(false)
    }, [])
 
-   const handleClearConversation = useCallback(() => {}, [])
-   const handleNewChat = useCallback(() => {}, [])
-   const handleSendMessage = useCallback(() => {}, [])
+   const handleClearConversation = useCallback(() => {
+      if (aiLoading) return
+
+      setChatActiveId('')
+      setChatList([])
+   }, [aiLoading])
+
+   const handleNewChat = useCallback(() => {
+      if (aiLoading) return
+
+      setChatActiveId('')
+      closeSidebar()
+   }, [aiLoading, closeSidebar])
+
+   const handleSendMessage = useCallback(
+      (message: string) => {
+         if (!chatActiveId) {
+            // * Creating a new Chat
+            let newChatId = uuidv4()
+            setChatList([
+               {
+                  id: newChatId,
+                  title: message,
+                  messages: [{ id: uuidv4(), author: 'me', body: message }],
+               },
+               ...chatList,
+            ])
+
+            setChatActiveId(newChatId)
+         } else {
+            // * Upadating existing chat
+            let chatListClone = [...chatList]
+            let chatIndex = chatListClone.findIndex(
+               (item) => item.id === chatActiveId
+            )
+
+            chatListClone[chatIndex].messages.push({
+               id: uuidv4(),
+               author: 'me',
+               body: message,
+            })
+
+            setChatList(chatListClone)
+         }
+
+         setAiLoading(true)
+      },
+      [chatActiveId, chatList]
+   )
 
    return (
       <main className="flex min-h-screen bg-gpt-gray">
@@ -53,7 +119,7 @@ export default function Home() {
                newChatClick={handleNewChat}
             />
 
-            <ChatArea chat={chatActive} />
+            <ChatArea chat={chatActive} loading={aiLoading} />
 
             <Footer onSendMessage={handleSendMessage} disabled={aiLoading} />
          </section>
