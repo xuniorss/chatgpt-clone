@@ -1,3 +1,5 @@
+'use client'
+
 import { Chat } from '@/types/Chat'
 import { ChatMessageItem } from '../ChatMessageItem'
 import { ChatMessageLoading } from '../ChatMessageLoading'

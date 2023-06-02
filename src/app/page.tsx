@@ -6,6 +6,7 @@ import { Header } from '@/components/Header'
 import { Sidebar } from '@/components/Sidebar'
 import { SidebarChatButton } from '@/components/SidebarChatButton'
 import { Chat } from '@/types/Chat'
+import { openai } from '@/utils/openai'
 import { useCallback, useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -20,24 +21,29 @@ export default function Home() {
       setChatActive(chatList.find((item) => item.id === chatActiveId))
    }, [chatActiveId, chatList])
 
-   const getAIResponse = useCallback(() => {
-      setTimeout(() => {
-         let chatListClone = [...chatList]
-         let chatIndex = chatListClone.findIndex(
-            (item) => item.id === chatActiveId
-         )
+   const getAIResponse = useCallback(async () => {
+      let chatListClone = [...chatList]
+      let chatIndex = chatListClone.findIndex(
+         (item) => item.id === chatActiveId
+      )
 
-         if (chatIndex > -1) {
+      if (chatIndex > -1) {
+         const translated = openai.translateMessage(
+            chatListClone[chatIndex].messages
+         )
+         const response = await openai.generate(translated)
+
+         if (response) {
             chatListClone[chatIndex].messages.push({
                id: uuidv4(),
                author: 'ai',
-               body: 'Aqui vai a resposta da AI',
+               body: response,
             })
          }
+      }
 
-         setChatList(chatListClone)
-         setAiLoading(false)
-      }, 2000)
+      setChatList(chatListClone)
+      setAiLoading(false)
    }, [chatActiveId, chatList])
 
    useEffect(() => {
