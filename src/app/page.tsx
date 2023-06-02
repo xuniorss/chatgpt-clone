@@ -4,6 +4,7 @@ import { ChatArea } from '@/components/ChatArea'
 import { Footer } from '@/components/Footer'
 import { Header } from '@/components/Header'
 import { Sidebar } from '@/components/Sidebar'
+import { SidebarChatButton } from '@/components/SidebarChatButton'
 import { Chat } from '@/types/Chat'
 import { useCallback, useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
@@ -101,6 +102,41 @@ export default function Home() {
       [chatActiveId, chatList]
    )
 
+   const handleSelectChat = useCallback(
+      (id: string) => {
+         if (aiLoading) return
+
+         let item = chatList.find((item) => item.id === id)
+         if (item) setChatActiveId(item.id)
+
+         closeSidebar()
+      },
+      [aiLoading, chatList, closeSidebar]
+   )
+
+   const handleDeleteChat = useCallback(
+      (id: string) => {
+         let chatListClone = [...chatList]
+         let chatIndex = chatListClone.findIndex((item) => item.id === id)
+         chatListClone.splice(chatIndex, 1)
+         setChatList(chatListClone)
+         setChatActiveId('')
+      },
+      [chatList]
+   )
+
+   const handleEditChat = useCallback(
+      (id: string, newTitle: string) => {
+         if (!newTitle) return
+
+         let chatListClone = [...chatList]
+         let chatIndex = chatListClone.findIndex((item) => item.id === id)
+         chatListClone[chatIndex].title = newTitle
+         setChatList(chatListClone)
+      },
+      [chatList]
+   )
+
    return (
       <main className="flex min-h-screen bg-gpt-gray">
          <Sidebar
@@ -109,13 +145,22 @@ export default function Home() {
             onClear={handleClearConversation}
             onNewChat={handleNewChat}
          >
-            ...
+            {chatList.map((item) => (
+               <SidebarChatButton
+                  key={item.id}
+                  chatItem={item}
+                  active={item.id === chatActiveId}
+                  onClick={handleSelectChat}
+                  onDelete={handleDeleteChat}
+                  onEdit={handleEditChat}
+               />
+            ))}
          </Sidebar>
 
          <section className="flex w-full flex-col">
             <Header
                openSidebarClick={openSidebar}
-               title={`Any title`}
+               title={chatActive ? chatActive.title : 'Nova conversa'}
                newChatClick={handleNewChat}
             />
 

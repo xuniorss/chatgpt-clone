@@ -6,6 +6,9 @@ import IconSunTwentyFour from './IconSunTwentyFour'
 import IconUser from './IconUser'
 import IconRobot from './IconRobot'
 import IconSend from './IconSend'
+import IconChatLeft from './IconChatLeft'
+import IconEdit3 from './IconEdit3'
+import IconCheck from './IconCheck'
 
 export {
    IconClose,
@@ -16,4 +19,7 @@ export {
    IconUser,
    IconRobot,
    IconSend,
+   IconChatLeft,
+   IconEdit3,
+   IconCheck,
 }
